@@ -1,0 +1,45 @@
+import requests
+from bs4 import BeautifulSoup
+
+def fetch_ss_com_vacancies(url="https://www.ss.com/ru/work/are-required/programmer/"):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+    }
+    
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        print(f"Ошибка доступа к странице: {response.status_code}")
+        return []
+    
+    # Парсим HTML
+    soup = BeautifulSoup(response.text, "html.parser")
+    
+    # На странице все объявления в виде ссылок <a> внутри таблицы списка
+    vacancies = []
+    
+    # Найдём все блоки ссылок на объявления
+    for link in soup.select("a[href*='/msg/']"):
+        title = link.get_text(strip=True)
+        href = link["href"]
+        
+        # Делаем полную ссылку
+        full_link = "https://www.ss.com" + href
+        
+        # Сохраняем запись
+        vacancies.append({
+            "title": title,
+            "link": full_link
+        })
+    
+    return vacancies
+
+# Пример использования
+if __name__ == "__main__":
+    vacancy_list = fetch_ss_com_vacancies()
+    
+    if not vacancy_list:
+        print("Вакансий не найдено или ошибка парсинга.")
+    else:
+        print(f"Найдено {len(vacancy_list)} вакансий:\n")
+        for v in vacancy_list:
+            print(f"{v['title']} — {v['link']}")
