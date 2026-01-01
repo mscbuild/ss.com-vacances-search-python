@@ -1,0 +1,17 @@
+name: CI Example
+
+on: [push]
+
+# Ограничение прав GITHUB_TOKEN на уровне всего workflow
+permissions:
+  contents: read # Разрешаем только чтение кода (необходимо для checkout)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      
+      - name: Run a script
+        run: echo "Hello, GitHub Actions 2026! Permissions are secured."
